@@ -12,7 +12,7 @@ const redis =
       })
     : null;
 
-const DATA_FILE = path.join(process.cwd(), "data", "proposals.json");
+const DATA_FILE = path.join("/tmp", "proposals.json");
 
 function localRead(id: string): Proposal | null {
   try {
