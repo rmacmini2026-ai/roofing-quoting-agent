@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Proposal, LineItem, CostBreakdown } from "@/types";
 
@@ -113,7 +113,6 @@ function ProposalPage() {
     navigator.clipboard.writeText(viewUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    window.open(viewUrl, "_blank");
   };
 
   const activeCosts = costsDraft ?? costs;
@@ -379,9 +378,6 @@ function Card({ title, children, badge }: { title: string; children: React.React
   );
 }
 
-// useSearchParams requires Suspense — wrap the default export
-import { Suspense } from "react";
-const WrappedProposalPage = ProposalPage;
 export default function Page() {
-  return <Suspense><WrappedProposalPage /></Suspense>;
+  return <Suspense><ProposalPage /></Suspense>;
 }
