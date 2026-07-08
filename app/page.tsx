@@ -160,11 +160,11 @@ export default function Home() {
                   <Field label="Full Name" required>
                     <input className={inputCls} placeholder="Jane Smith" value={form.name} onChange={set("name")} required />
                   </Field>
-                  <Field label="Email">
-                    <input className={inputCls} type="email" placeholder="jane@example.com" value={form.email} onChange={set("email")} />
+                  <Field label="Email" required>
+                    <input className={inputCls} type="email" placeholder="jane@example.com" value={form.email} onChange={set("email")} required />
                   </Field>
-                  <Field label="Phone">
-                    <input className={inputCls} type="tel" placeholder="(555) 000-0000" value={form.phone} onChange={set("phone")} />
+                  <Field label="Phone" required>
+                    <input className={inputCls} type="tel" placeholder="(555) 000-0000" value={form.phone} onChange={set("phone")} required />
                   </Field>
                 </div>
               </section>
