@@ -6,8 +6,8 @@ const COOKIE = "skyline_auth";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow the login page and its POST through
-  if (pathname === "/login") return NextResponse.next();
+  // Allow the login page and API route through
+  if (pathname === "/login" || pathname === "/api/login") return NextResponse.next();
 
   // Check auth cookie
   if (req.cookies.get(COOKIE)?.value === PASSWORD) return NextResponse.next();
