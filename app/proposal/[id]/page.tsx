@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Proposal, LineItem, CostBreakdown } from "@/types";
 
 function recomputeTotals(costs: CostBreakdown): CostBreakdown {
@@ -16,8 +16,10 @@ function recomputeTotals(costs: CostBreakdown): CostBreakdown {
   };
 }
 
-export default function ProposalPage() {
+function ProposalPage() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const isViewMode = searchParams.get("view") === "1";
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -103,10 +105,15 @@ export default function ProposalPage() {
   const { customer, measurements, costs, financing, narrative, roofType, createdAt } = proposal;
   const date = new Date(createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
+  const viewUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/proposal/${id}?view=1`
+    : "";
+
   const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(viewUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    window.open(viewUrl, "_blank");
   };
 
   const activeCosts = costsDraft ?? costs;
@@ -142,20 +149,24 @@ export default function ProposalPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
             Print / Save PDF
           </button>
-          <button
-            onClick={() => { setEditingNarrative(true); setNarrativeDraft(narrative); }}
-            className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-            Edit Scope
-          </button>
-          <button
-            onClick={() => { setEditingCosts(true); setCostsDraft(JSON.parse(JSON.stringify(costs))); }}
-            className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-            Edit Costs
-          </button>
+          {!isViewMode && (
+            <>
+              <button
+                onClick={() => { setEditingNarrative(true); setNarrativeDraft(narrative); }}
+                className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                Edit Scope
+              </button>
+              <button
+                onClick={() => { setEditingCosts(true); setCostsDraft(JSON.parse(JSON.stringify(costs))); }}
+                className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                Edit Costs
+              </button>
+            </>
+          )}
         </div>
         {saveError && <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-2 print:hidden">{saveError}</p>}
 
@@ -366,4 +377,11 @@ function Card({ title, children, badge }: { title: string; children: React.React
       <div className="px-6 py-5">{children}</div>
     </div>
   );
+}
+
+// useSearchParams requires Suspense — wrap the default export
+import { Suspense } from "react";
+const WrappedProposalPage = ProposalPage;
+export default function Page() {
+  return <Suspense><WrappedProposalPage /></Suspense>;
 }
