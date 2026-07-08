@@ -102,7 +102,7 @@ function ProposalPage() {
     </div>
   );
 
-  const { customer, measurements, costs, financing, narrative, roofType, createdAt } = proposal;
+  const { customer, measurements, costs, financing, narrative, roofType, notes, createdAt } = proposal;
   const date = new Date(createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
   const viewUrl = typeof window !== "undefined"
@@ -183,6 +183,12 @@ function ProposalPage() {
               <p><span className="text-slate-400">Roof Type:</span> {roofType}</p>
             </div>
           </div>
+          {notes && (
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Notes</p>
+              <p className="text-sm text-slate-600 whitespace-pre-line">{notes}</p>
+            </div>
+          )}
         </Card>
 
         {/* Roof assessment */}
