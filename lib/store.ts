@@ -39,6 +39,14 @@ export async function saveProposal(proposal: Proposal): Promise<void> {
   }
 }
 
+export async function updateProposal(id: string, patch: Partial<Proposal>): Promise<Proposal | null> {
+  const existing = await getProposal(id);
+  if (!existing) return null;
+  const updated = { ...existing, ...patch };
+  await saveProposal(updated);
+  return updated;
+}
+
 export async function getProposal(id: string): Promise<Proposal | null> {
   if (redis) {
     const raw = await redis.get<string>(`proposal:${id}`);
